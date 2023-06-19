@@ -81,6 +81,18 @@ HDQ::HDQ(uint8_t pinArg)
     outputReg = portOutputRegister(port);
     inputReg = portInputRegister(port);
     modeReg = portModeRegister(port);
+
+#ifdef HDQ_DEBUG
+    debugPin = HDQ_DEFAULT_DEBUG_PIN;
+    debugPort = digitalPinToPort(debugPin);
+    debugBitmask = digitalPinToBitMask(debugPin);
+    debugOutputReg = portOutputRegister(debugPort);
+    debugInputReg = portInputRegister(debugPort);
+    debugModeReg = portModeRegister(debugPort);
+
+    sbi(*debugModeReg, debugPin);   // Set pin as output
+    sbi(*debugOutputReg, debugPin); // Bring pin low
+#endif
 }
 
 /*
@@ -106,7 +118,10 @@ void HDQ::doBreak(void)
 */
 void HDQ::writeByte(uint8_t payload)
 {
-    sbi(*modeReg, pin); // Set pin as output
+    sbi(*modeReg, pin);             // Set pin as output
+#ifdef HDQ_DEBUG
+    sbi(*debugOutputReg, debugPin); // Bring debug pin high
+#endif
 
     for (uint8_t ii = 0; ii < 8; ii++)
     {
@@ -132,6 +147,10 @@ void HDQ::writeByte(uint8_t payload)
         sbi(*outputReg, pin); // Bring the pin high
         delayMicroseconds(HDQ_DELAY_TCYCH - HDQ_DELAY_THW0);
     }
+
+#ifdef HDQ_DEBUG
+    cbi(*debugOutputReg, debugPin); // Bring debug pin low
+#endif
 
     // Make sure we leave enough time for the slave to recover
     cbi(*modeReg, pin); // Release pin
@@ -217,8 +236,15 @@ uint8_t HDQ::read(uint8_t reg)
 
         // Wait until Tdsub and half or one bit has passed
         delayMicroseconds(((HDQ_DELAY_TDW0 - HDQ_DELAY_TDW1) / 2) + HDQ_DELAY_TDW1);
+
+#ifdef HDQ_DEBUG
+        sbi(*debugOutputReg, debugPin); // Bring debug pin high
+#endif
         // Read the bit
         result |= _HDQ_readPin() << ii;
+#ifdef HDQ_DEBUG
+        cbi(*debugOutputReg, debugPin); // Bring debug pin low
+#endif
 
         // Wait until Tssub has passed
         delayMicroseconds(HDQ_DELAY_TCYCD - HDQ_DELAY_TDW0);

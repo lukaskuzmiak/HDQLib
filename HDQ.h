@@ -15,7 +15,10 @@
 /**
  * Default pin to use if none is specified to the constructor
  **/
-#define HDQ_DEFAULT_PIN 7 /* Arduino pin 7 */
+#define HDQ_DEFAULT_PIN 7       /* Arduino pin 7 */
+#ifdef HDQ_DEBUG
+#define HDQ_DEFAULT_DEBUG_PIN 6 /* Arduino pin 6 */
+#endif
 
 /**
  * Read/write command mask
@@ -91,6 +94,15 @@ private:
     volatile uint8_t *outputReg;
     volatile uint8_t *inputReg;
     volatile uint8_t *modeReg;
+
+#ifdef HDQ_DEBUG
+    uint8_t debugPin;
+    uint8_t debugPort;
+    uint8_t debugBitmask;
+    volatile uint8_t *debugOutputReg;
+    volatile uint8_t *debugInputReg;
+    volatile uint8_t *debugModeReg;
+#endif
 
     /**
      * writeByte: write a raw byte of data to the bus
