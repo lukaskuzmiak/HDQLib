@@ -12,6 +12,8 @@
 #ifndef HDQ_H
 #define HDQ_H
 
+//#define HDQ_DEBUG // Uncomment this to enable DEBUG
+
 /**
  * Default pin to use if none is specified to the constructor
  **/
@@ -32,21 +34,21 @@
  * As far as I can tell the loop uses ~6 instructions
  * thus giving about 200uS delay which is a full bit write
  **/
-#define HDQ_DELAY_FAIL_TRIES 300
+#define HDQ_DELAY_FAIL_TRIES 400
 
 /**
  * HDQ Default NEW timings
  **/
-#define HDQ_DELAY_THW1 45  // 32 - 66uS
-#define HDQ_DELAY_THW0 120 // 70 - 145uS
+#define HDQ_DELAY_THW1 41  // 32 - 66uS
+#define HDQ_DELAY_THW0 112 // 70 - 145uS
 
-#define HDQ_DELAY_TDW1 48   // 0.5 - 50us
-#define HDQ_DELAY_TDW0 110  // 86 - 145uS
-#define HDQ_DELAY_TCYCD 205 // 190 min
+#define HDQ_DELAY_TDW1 41   // 0.5 - 50us
+#define HDQ_DELAY_TDW0 112  // 86 - 145uS
+#define HDQ_DELAY_TCYCD 220 // 190 min
 
-#define HDQ_DELAY_TB 250    /* Min: 190uS */
+#define HDQ_DELAY_TB 220    /* Min: 190uS */
 #define HDQ_DELAY_TBR 70    /* Min: 40uS */
-#define HDQ_DELAY_TCYCH 250 /* Min: 190uS Max: 250uS*/
+#define HDQ_DELAY_TCYCH 220 /* Min: 190uS Max: 250uS*/
 
 #define HDQ_DELAY_TRSPS_MAX 320 /* Max: 320uS */
 #define HDQ_DELAY_BIT_TOTAL 200

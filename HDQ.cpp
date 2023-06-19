@@ -154,8 +154,11 @@ void HDQ::writeByte(uint8_t payload)
 
     // Make sure we leave enough time for the slave to recover
     cbi(*modeReg, pin); // Release pin
+
+    // no need for this as we released the PIN (it is pulled up) and we are waiting for a falling edge
+    // this blocks our processing and makes timing very tight
     // delayMicroseconds(HDQ_DELAY_TBR);
-    delayMicroseconds(HDQ_DELAY_TCYCH - HDQ_DELAY_THW0);
+    // delayMicroseconds(HDQ_DELAY_TCYCH - HDQ_DELAY_THW0);
 
     return;
 }
@@ -229,10 +232,11 @@ uint8_t HDQ::read(uint8_t reg)
     for (uint8_t ii = 0; ii < 8; ii++)
     {
         // Wait for the slave to toggle a low, or fail
+        // TODO: this should really be a falling edge detect but the timing is quite tight :/
         maxTries = HDQ_DELAY_FAIL_TRIES;
         while (_HDQ_readPin() != 0 && maxTries-- > 0)
             if (maxTries == 1)
-                return 0xFF;
+                return 0x55; // make this a more obvious "fail" value (0xFF is too common), still kinda sucks
 
         // Wait until Tdsub and half or one bit has passed
         delayMicroseconds(((HDQ_DELAY_TDW0 - HDQ_DELAY_TDW1) / 2) + HDQ_DELAY_TDW1);
@@ -247,7 +251,8 @@ uint8_t HDQ::read(uint8_t reg)
 #endif
 
         // Wait until Tssub has passed
-        delayMicroseconds(HDQ_DELAY_TCYCD - HDQ_DELAY_TDW0);
+        // delayMicroseconds(HDQ_DELAY_TCYCD - HDQ_DELAY_TDW0); // this seems too long, replaced with other half of TDW0/TDW1 difference
+        delayMicroseconds((HDQ_DELAY_TDW0 - HDQ_DELAY_TDW1) / 2);
     }
 
     delayMicroseconds(HDQ_DELAY_TB);
